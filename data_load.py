@@ -1,7 +1,7 @@
 import os
 from skimage import io, transform
 import glob
-import sys
+from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import torch
 import json
@@ -29,13 +29,13 @@ class MagDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        frame_name = os.path.basename(img_name[idx])
+        frame_name = os.path.basename(self.img_name[idx])
         img_a = io.imread(os.path.join(self.root_dir, 'frameA', frame_name))
         img_b = io.imread(os.path.join(self.root_dir, 'frameB', frame_name))
         img_c = io.imread(os.path.join(self.root_dir, 'frameC', frame_name))
         amplified = io.imread(os.path.join(self.root_dir, 'amplified', frame_name))
         f, _ = os.path.splitext(frame_name)
-        meta_path = os.path.join(data_dir, 'meta', f + '.json')
+        meta_path = os.path.join(self.root_dir, 'meta', f + '.json')
         amplification_factor = json.load(open(meta_path))['amplification_factor']
 
         landmarks = self.landmarks_frame.iloc[idx, 1:]
