@@ -1,7 +1,5 @@
 from magnet import *
 from data_load import *
-import torchvision
-import torchvision.transforms as transforms
 from torch.optim import lr_scheduler
 import torch.optim as optim
 import time
@@ -85,5 +83,5 @@ exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
 net.to(device)
 dataset_sizes = {'train':len(trainset), 'val':len(testset)}
 best_model = train_model(model=net, criterion=criterion, optimizer=optimizer,
-            scheduler=exp_lr_scheduler, device=device, dataloaders = dataloaders, dataset_sizes = dataset_sizes)
+            scheduler=exp_lr_scheduler, device=device, dataloaders=dataloaders, dataset_sizes = dataset_sizes)
 torch.save(best_model, 'best_mode.pt')
