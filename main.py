@@ -2,20 +2,13 @@ from magnet import *
 from data_load import *
 import torchvision
 import torchvision.transforms as transforms
+from torch.optim import lr_scheduler
 import torch.optim as optim
-
-dataset = MagDataset(root_dir='./data')
-
-dataset.size = dataset.len()
-train_dataset, val_dataset = torch.utils.data.random_split(dataset,
-                                        [0.8*dataset.size, 0.2*dataset.size])
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
-                                          shuffle=True, num_workers=2)
-testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-                                         shuffle=True, num_workers=2)
+import time
+import copy
 
 
-def train_model(model, criterion, optimizer, scheduler, device, num_epochs=10):
+def train_model(model, criterion, optimizer, scheduler, device, dataloaders, num_epochs=10):
     since = time.time()
     best_loss = 0.0
     if model != 0:
@@ -68,11 +61,21 @@ def train_model(model, criterion, optimizer, scheduler, device, num_epochs=10):
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
         time_elapsed // 60, time_elapsed % 60))
-    print('Best val Acc: {:4f}'.format(best_acc))
 
     # load best model weights
     model.load_state_dict(best_model_wts)
     return model
+
+dataset = MagDataset(root_dir='C:/Wenyu/data')
+
+dataset.size = len(dataset)
+trainset, testset = torch.utils.data.random_split(dataset,
+                                        [int(0.8*dataset.size), int(0.2*dataset.size)])
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
+                                          shuffle=True, num_workers=2)
+testloader = torch.utils.data.DataLoader(testset, batch_size=4,
+                                         shuffle=True, num_workers=2)
+dataloaders = {'train':trainloader, 'val':testloader}
 
 net = Net()
 criterion = nn.CrossEntropyLoss()
@@ -80,6 +83,7 @@ optimizer = optim.SGD(net.parameters(), lr=0.0002, momentum=0.9)
 device = torch.device("cuda:0")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
 net.to(device)
+dataset_sizes = {'train':len(trainset), 'val':len(testset)}
 best_model = train_model(model=net, criterion=criterion, optimizer=optimizer,
-            scheduler=exp_lr_scheduler, device=device)
-save(best_model, 'best_mode.pt')
+            scheduler=exp_lr_scheduler, device=device, dataloaders = dataloaders, dataset_sizes = dataset_sizes)
+torch.save(best_model, 'best_mode.pt')
