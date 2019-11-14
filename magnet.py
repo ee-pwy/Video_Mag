@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 import torch.nn.functional as F
 
 
@@ -53,15 +54,15 @@ class Net(nn.Module):
         for block in self.res_blk_encoder:
             x = block(x)
 
-        x = self.pad_1(x)
-        text = F.relu(self.conv_text_1(x))
+        text = self.pad_1(x)
+        text = F.relu(self.conv_text_1(text))
         text = self.pad_1(text)
         text = F.relu(self.conv_text_2(text))
         for block in self.res_blk_text:
             text = block(text)
 
-        x = self.pad_1(x)
-        shape = F.relu(self.conv_shape_1(x))
+        shape = self.pad_1(x)
+        shape = F.relu(self.conv_shape_1(shape))
         shape = self.pad_1(shape)
         shape = F.relu(self.conv_shape_2(shape))
         for block in self.res_blk_shape:
@@ -72,7 +73,8 @@ class Net(nn.Module):
     def manipulator(self, shape_a, shape_b, amplification_factor):
         diff = shape_b - shape_a
         diff = self.pad_2(diff)
-        diff = amplification_factor * F.relu(self.conv_man_1(diff))
+        diff = F.relu(self.conv_man_1(diff))
+        diff = (diff.transpose(0, 3)*amplification_factor).transpose(0, 3)
         diff = self.pad_2(diff)
         diff = F.relu(self.conv_man_2(diff))
         for block in self.res_blk_man:
@@ -80,14 +82,14 @@ class Net(nn.Module):
         return shape_b + diff
 
     def decoder(self, text, shape):  # tensor: N(batchsize)*C(channel)*H*W
-        x = F.cat((text, shape), 1)
+        x = torch.cat((text, shape), 1)
         x = self.pad_1(x)
         x = F.relu(self.conv_cat_1(x))
         x = F.interpolate(x, scale_factor=2)
         x = self.pad_1(x)
         x = F.relu(self.conv_cat_2(x))
         for block in self.res_blk_decoder:
-            text = block(text)
+            x = block(x)
 
         x = F.interpolate(x, scale_factor=4)
         x = self.pad_1(x)

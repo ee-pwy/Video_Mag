@@ -21,14 +21,15 @@ def train_model(model, criterion, optimizer, scheduler, device,
 
         for phase in ['train', 'val']:
             running_loss = 0.0
+            epoch_loss = 0
 
             # Iterate over data.
-            for inputs in dataloaders[phase]:
+            for i, inputs in enumerate(dataloaders[phase]):
                 img_a = inputs['frameA'].to(device, dtype=torch.float)
                 img_b = inputs['frameB'].to(device, dtype=torch.float)
  #               img_c = inputs['frameC'].to(device)
                 amplified = inputs['amplified'].to(device, dtype=torch.float)
-                amplification_factor = inputs['amplification_factor'].to(device)
+                amplification_factor = inputs['amplification_factor'].to(device, dtype=torch.float)
 
                 # zero the parameter gradients
                 optimizer.zero_grad()
@@ -45,11 +46,13 @@ def train_model(model, criterion, optimizer, scheduler, device,
                         optimizer.step()
 
                 # statistics
-                running_loss += loss.item() * inputs.size(0)
+                running_loss += loss.item() / inputs['frameA'].size(0)
+                if i % 10 == 9:
+                    print('running: {:.4f}'.format(running_loss / 10.0))
+                    epoch_loss += running_loss / dataset_sizes[phase]
+                    running_loss = 0
             if phase == 'train':
                 scheduler.step()
-
-            epoch_loss = running_loss / dataset_sizes[phase]
 
             print('{} Loss: {:.4f}'.format(phase, epoch_loss))
 
@@ -83,8 +86,8 @@ dataloaders = {'train':trainloader, 'val':testloader}
 
 net = Net()
 
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=0.0002, momentum=0.9)
+criterion = nn.MSELoss()
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 device = torch.device("cuda:0")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
 net.to(device)
