@@ -8,7 +8,8 @@ import time
 import copy
 
 
-def train_model(model, criterion, optimizer, scheduler, device, dataloaders, num_epochs=10):
+def train_model(model, criterion, optimizer, scheduler, device,
+                dataloaders, dataset_sizes, num_epochs=10):
     since = time.time()
     best_loss = 0.0
     if model != 0:
@@ -24,9 +25,12 @@ def train_model(model, criterion, optimizer, scheduler, device, dataloaders, num
             running_loss = 0.0
 
             # Iterate over data.
-            for inputs, amplified_frame in dataloaders[phase]:
-                inputs = inputs.to(device)
-                amplified_frame = amplified_frame.to(device)
+            for inputs in dataloaders[phase]:
+                img_a = inputs['frameA'].to(device, dtype=torch.float)
+                img_b = inputs['frameB'].to(device, dtype=torch.float)
+ #               img_c = inputs['frameC'].to(device)
+                amplified = inputs['amplified'].to(device, dtype=torch.float)
+                amplification_factor = inputs['amplification_factor'].to(device)
 
                 # zero the parameter gradients
                 optimizer.zero_grad()
@@ -34,8 +38,8 @@ def train_model(model, criterion, optimizer, scheduler, device, dataloaders, num
                 # forward
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
-                    outputs = model(inputs)
-                    loss = criterion(outputs, amplified_frame)
+                    outputs = model(img_a, img_b, amplification_factor)
+                    loss = criterion(outputs, amplified)
 
                     # backward + optimize only if in training phase
                     if phase == 'train':
@@ -66,24 +70,26 @@ def train_model(model, criterion, optimizer, scheduler, device, dataloaders, num
     model.load_state_dict(best_model_wts)
     return model
 
-dataset = MagDataset(root_dir='C:/Wenyu/data')
+tra_val_dataset = MagDataset(root_dir='C:/Wenyu/data', transform=ToTensor())
 
-dataset.size = len(dataset)
-trainset, testset = torch.utils.data.random_split(dataset,
-                                        [int(0.8*dataset.size), int(0.2*dataset.size)])
+dataset_sizes = {'train': int(0.8*len(tra_val_dataset)), 'val': int(0.2*len(tra_val_dataset))}
+trainsubset, testsubset = torch.utils.data.random_split(tra_val_dataset,
+                                        [dataset_sizes['train'], dataset_sizes['val']])
+trainset = MagSubset(trainsubset)
+testset = MagSubset(testsubset)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
-                                          shuffle=True, num_workers=2)
+                                          shuffle=True)
 testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-                                         shuffle=True, num_workers=2)
+                                         shuffle=True)
 dataloaders = {'train':trainloader, 'val':testloader}
 
 net = Net()
+
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.0002, momentum=0.9)
 device = torch.device("cuda:0")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
 net.to(device)
-dataset_sizes = {'train':len(trainset), 'val':len(testset)}
 best_model = train_model(model=net, criterion=criterion, optimizer=optimizer,
-            scheduler=exp_lr_scheduler, device=device, dataloaders = dataloaders, dataset_sizes = dataset_sizes)
+            scheduler=exp_lr_scheduler, device=device, dataloaders=dataloaders, dataset_sizes=dataset_sizes)
 torch.save(best_model, 'best_mode.pt')

@@ -1,10 +1,38 @@
 import os
 from skimage import io, transform
 import glob
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import numpy as np
 import torch
 import json
+
+
+class MagSubset(Dataset):
+    def __init__(self, subset, transform=None):
+        self.subset = subset
+        self.transform = transform
+
+    def __getitem__(self, idx):
+        sample = self.subset[idx]
+        if self.transform:
+            sample = self.transform(sample)
+        return sample
+
+    def __len__(self):
+        return len(self.subset)
+
+
+class ToTensor(object):
+    def __call__(self, sample):
+        img_a, img_b, img_c, amplified, amplification_factor = sample['frameA'],\
+                    sample['frameB'],  sample['frameC'], sample['amplified'], sample['amplification_factor']
+        img_a = torch.from_numpy(img_a.transpose((2 ,0, 1)))
+        img_b = torch.from_numpy(img_b.transpose((2, 0, 1)))
+        img_c = torch.from_numpy(img_c.transpose((2, 0, 1)))
+        amplified = torch.from_numpy(amplified.transpose((2, 0, 1)))
+        amplification_factor = torch.tensor(amplification_factor)
+        return {'frameA': img_a, 'frameB': img_b, 'frameC': img_c, 'amplified': amplified,
+                  'amplification_factor': amplification_factor}
 
 
 class MagDataset(Dataset):
@@ -38,9 +66,6 @@ class MagDataset(Dataset):
         meta_path = os.path.join(self.root_dir, 'meta', f + '.json')
         amplification_factor = json.load(open(meta_path))['amplification_factor']
 
-        landmarks = self.landmarks_frame.iloc[idx, 1:]
-        landmarks = np.array([landmarks])
-        landmarks = landmarks.astype('float').reshape(-1, 2)
         sample = {'frameA': img_a, 'frameB': img_b, 'frameC': img_c, 'amplified': amplified,
                   'amplification_factor': amplification_factor}
 
