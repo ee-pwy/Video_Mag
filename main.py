@@ -1,7 +1,5 @@
 from magnet import *
 from data_load import *
-import torchvision
-import torchvision.transforms as transforms
 from torch.optim import lr_scheduler
 import torch.optim as optim
 import time
