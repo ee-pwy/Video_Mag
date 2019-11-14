@@ -13,6 +13,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
     if model != 0:
         best_model_wts = copy.deepcopy(model.state_dict())
 
+    trace_loss = {'train':[],'val':[]}
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
         print('-' * 10)
@@ -20,6 +21,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
         # Each epoch has a training and validation phase
 
         for phase in ['train', 'val']:
+            filehandle = open(phase+'_origin.txt', 'a+')
             running_loss = 0.0
             epoch_loss = 0
 
@@ -46,15 +48,18 @@ def train_model(model, criterion, optimizer, scheduler, device,
                         optimizer.step()
 
                 # statistics
-                running_loss += loss.item() / inputs['frameA'].size(0)
+                running_loss += loss.item()
                 if i % 10 == 9:
-                    print('running: {:.4f}'.format(running_loss / 10.0))
+                    print('images num:{} running: {:.4f}'.format((i+1)*4, running_loss / 10.0))
                     epoch_loss += running_loss / dataset_sizes[phase]
+                    trace_loss[phase].append(float(running_loss) / 10.0)
+                    filehandle.write('{:.5f}\n'.format(float(running_loss) / 10.0))
                     running_loss = 0
             if phase == 'train':
                 scheduler.step()
 
             print('{} Loss: {:.4f}'.format(phase, epoch_loss))
+            filehandle.close()
 
             # deep copy the model
             if phase == 'val' and epoch_loss > best_loss:
@@ -84,13 +89,14 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=4,
                                          shuffle=True)
 dataloaders = {'train':trainloader, 'val':testloader}
 
-net = Net()
+net = origin_Net()
 
 criterion = nn.MSELoss()
-optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+optimizer = optim.SGD(net.parameters(), lr=0.0008, momentum=0.9)
 device = torch.device("cuda:0")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
 net.to(device)
 best_model = train_model(model=net, criterion=criterion, optimizer=optimizer,
             scheduler=exp_lr_scheduler, device=device, dataloaders=dataloaders, dataset_sizes=dataset_sizes)
 torch.save(best_model, 'best_mode.pt')
+places = ['Berlin', 'Cape Town', 'Sydney', 'Moscow']
