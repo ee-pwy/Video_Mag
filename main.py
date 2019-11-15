@@ -29,7 +29,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
             for i, inputs in enumerate(dataloaders[phase]):
                 img_a = inputs['frameA'].to(device, dtype=torch.float)
                 img_b = inputs['frameB'].to(device, dtype=torch.float)
- #               img_c = inputs['frameC'].to(device)
+                img_c = inputs['frameC'].to(device, dtype=torch.float)
                 amplified = inputs['amplified'].to(device, dtype=torch.float)
                 amplification_factor = inputs['amplification_factor'].to(device, dtype=torch.float)
 
@@ -40,7 +40,9 @@ def train_model(model, criterion, optimizer, scheduler, device,
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
                     outputs = model(img_a, img_b, amplification_factor)
-                    loss = criterion(outputs, amplified)
+                    text_c, shape_c = model.encoder(img_c)
+                    loss = criterion(outputs, amplified) + criterion(model.text_a, text_c) \
+                           + criterion(model.shape_a, shape_c)
 
                     # backward + optimize only if in training phase
                     if phase == 'train':
@@ -91,8 +93,8 @@ dataloaders = {'train':trainloader, 'val':testloader}
 
 net = origin_Net()
 
-criterion = nn.MSELoss()
-optimizer = optim.SGD(net.parameters(), lr=0.0008, momentum=0.9)
+criterion = nn.L1Loss()
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 device = torch.device("cuda:0")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
 net.to(device)

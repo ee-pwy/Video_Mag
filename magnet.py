@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 class Residual(nn.Module):
     def __init__(self, in_channels):
-        super().__init__()
+        super(Residual, self).__init__()
         self.pad = nn.ReplicationPad2d(1)
         self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=in_channels, kernel_size=3, stride=1)
         self.conv2 = nn.Conv2d(in_channels=in_channels, out_channels=in_channels, kernel_size=3, stride=1)
@@ -123,8 +123,8 @@ class origin_Net(nn.Module):
         self.res_blk_shape = nn.ModuleList([Residual(in_channels=32) for i in range(2)])
 
         # network structure of manipulator
-        self.conv_man_1 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=1)
-        self.conv_man_2 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=1)
+        self.conv_man_1 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1)
+        self.conv_man_2 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1)
         self.res_blk_man = nn.ModuleList([Residual(in_channels=32) for i in range(1)])
 
         # network structure of decoder
@@ -160,10 +160,10 @@ class origin_Net(nn.Module):
 
     def manipulator(self, shape_a, shape_b, amplification_factor):
         diff = shape_b - shape_a
-        diff = self.pad_2(diff)
+        diff = self.pad_1(diff)
         diff = F.relu(self.conv_man_1(diff))
         diff = (diff.transpose(0, 3)*amplification_factor).transpose(0, 3)
-        diff = self.pad_2(diff)
+        diff = self.pad_1(diff)
         diff = F.relu(self.conv_man_2(diff))
         for block in self.res_blk_man:
             diff = block(diff)
@@ -187,8 +187,8 @@ class origin_Net(nn.Module):
         return x
 
     def forward(self, image_a, image_b, amplification_factor):
-        text_a, shape_a = self.encoder(image_a)
-        text_b, shape_b = self.encoder(image_b)
-        encode_shape = self.manipulator(shape_a, shape_b, amplification_factor)
-        output = self.decoder(text_b, encode_shape)
+        self.text_a, self.shape_a = self.encoder(image_a)
+        self.text_b, self.shape_b = self.encoder(image_b)
+        encode_shape = self.manipulator(self.shape_a, self.shape_b, amplification_factor)
+        output = self.decoder(self.text_b, encode_shape)
         return output
