@@ -89,14 +89,14 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
                                           shuffle=True)
 testloader = torch.utils.data.DataLoader(testset, batch_size=4,
                                          shuffle=True)
-dataloaders = {'train':trainloader, 'val':testloader}
+dataloaders = {'train': trainloader, 'val': testloader}
 
 net = origin_Net()
 
 criterion = nn.L1Loss()
-optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+optimizer = optim.Adam(net.parameters(), lr=0.00001)
 device = torch.device("cuda:0")
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
 net.to(device)
 best_model = train_model(model=net, criterion=criterion, optimizer=optimizer,
             scheduler=exp_lr_scheduler, device=device, dataloaders=dataloaders, dataset_sizes=dataset_sizes)
