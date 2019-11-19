@@ -94,7 +94,7 @@ dataloaders = {'train': trainloader, 'val': testloader}
 net = origin_Net()
 
 criterion = nn.L1Loss()
-optimizer = optim.Adam(net.parameters(), lr=0.00001)
+optimizer = optim.Adam(net.parameters(), lr=0.00005)
 device = torch.device("cuda:0")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
 net.to(device)

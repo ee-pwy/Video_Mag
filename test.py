@@ -54,7 +54,6 @@ PATH = './best_mode.pt'
 model = origin_Net()
 model.to(device)
 model = torch.load(PATH, map_location=lambda storage, loc: storage)
-#model.load_state_dict(torch.load(PATH, map_location=lambda storage, loc: storage))
 
 with torch.no_grad():
     for i, data in enumerate(test_loader):
