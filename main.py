@@ -101,4 +101,3 @@ net.to(device)
 best_model = train_model(model=net, criterion=criterion, optimizer=optimizer,
             scheduler=exp_lr_scheduler, device=device, dataloaders=dataloaders, dataset_sizes=dataset_sizes)
 torch.save(best_model, 'best_mode.pt')
-places = ['Berlin', 'Cape Town', 'Sydney', 'Moscow']

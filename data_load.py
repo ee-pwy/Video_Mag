@@ -1,5 +1,5 @@
 import os
-from skimage import io, transform
+from skimage import io
 import glob
 from torch.utils.data import Dataset
 import numpy as np
@@ -24,28 +24,36 @@ class MagSubset(Dataset):
 
 class ToTensor(object):
     def __call__(self, sample):
-        img_a, img_b, img_c, amplified, amplification_factor = sample['frameA'],\
-                    sample['frameB'],  sample['frameC'], sample['amplified'], sample['amplification_factor']
-        img_a = torch.from_numpy(img_a.transpose((2 ,0, 1)))
-        img_b = torch.from_numpy(img_b.transpose((2, 0, 1)))
-        img_c = torch.from_numpy(img_c.transpose((2, 0, 1)))
-        amplified = torch.from_numpy(amplified.transpose((2, 0, 1)))
-        amplification_factor = torch.tensor(amplification_factor)
-        return {'frameA': img_a, 'frameB': img_b, 'frameC': img_c, 'amplified': amplified,
-                  'amplification_factor': amplification_factor}
+        if len(sample) == 5:
+            img_a, img_b, img_c, amplified, amplification_factor = sample['frameA'],\
+                        sample['frameB'],  sample['frameC'], sample['amplified'], sample['amplification_factor']
+            img_a = img_a / 127.5 - 1
+            img_b = img_b / 127.5 - 1
+            img_c = img_c / 127.5 - 1
+            amplified = amplified / 127.5 - 1
+            img_a = torch.from_numpy(img_a.transpose((2 ,0, 1)))
+            img_b = torch.from_numpy(img_b.transpose((2, 0, 1)))
+            img_c = torch.from_numpy(img_c.transpose((2, 0, 1)))
+            amplified = torch.from_numpy(amplified.transpose((2, 0, 1)))
+            amplification_factor = torch.tensor(amplification_factor)
+
+            return {'frameA': img_a, 'frameB': img_b, 'frameC': img_c, 'amplified': amplified,
+                      'amplification_factor': amplification_factor}
+        else:
+            img_a, img_b, amplification_factor = sample['frameA'], \
+                        sample['frameB'], sample['amplification_factor']
+            img_a = torch.from_numpy(img_a.transpose((2, 0, 1)))
+            img_b = torch.from_numpy(img_b.transpose((2, 0, 1)))
+            img_a = img_a / 127.5 - 1
+            img_b = img_b / 127.5 - 1
+            amplification_factor = torch.tensor(amplification_factor)
+            return {'frameA': img_a, 'frameB': img_b, 'amplification_factor': amplification_factor}
 
 
 class MagDataset(Dataset):
     """Face Landmarks dataset."""
 
     def __init__(self, root_dir, transform=None):
-        """
-        Args:
-            csv_file (string): Path to the csv file with annotations.
-            root_dir (string): Directory with all the images.
-            transform (callable, optional): Optional transform to be applied
-                on a sample.
-        """
         self.img_name = glob.glob(os.path.join(root_dir, 'frameA', '*.png'))
         self.root_dir = root_dir
         self.transform = transform
