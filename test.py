@@ -50,7 +50,7 @@ class Mag_test(Dataset):
 def main(root_dir, output_dir):
     device = torch.device('cuda:0')
     test_dataset = Mag_test(root_dir=root_dir, transform=ToTensor())
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=4)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     PATH = './best_mode.pt'
