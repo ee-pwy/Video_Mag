@@ -50,7 +50,7 @@ class Mag_test(Dataset):
 def main(root_dir, output_dir):
     device = torch.device('cuda:0')
     test_dataset = Mag_test(root_dir=root_dir, transform=ToTensor())
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=4)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     PATH = './best_mode.pt'
@@ -65,7 +65,7 @@ def main(root_dir, output_dir):
             img_b = data['frameB'].to(device, dtype=torch.float)
             amplification_factor = data['amplification_factor'].to(device, dtype=torch.float)
             outputs = model(img_a, img_b, amplification_factor)
-            outputs = np.transpose(outputs[0].numpy(), (1, 2, 0))/255
+            outputs = np.transpose(outputs[0].item(), (1, 2, 0))/255
             outputs = np.clip(outputs, 0, 1)
             plt.imsave(output_dir + '0'*(5-len(str(i))) + str(i) + '.jpg', outputs)
 
