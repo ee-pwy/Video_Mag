@@ -24,4 +24,5 @@ def convert_2_mp4(img_dir, mp4_path):
     out.release()
 
 if __name__ == '__main__':
+    print(sys.argv[1])
     convert_2_mp4(sys.argv[1], sys.argv[2])
