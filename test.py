@@ -1,6 +1,7 @@
 from magnet import *
 from data_load import *
 from PIL import Image
+import img_2_mp4
 import matplotlib.pyplot as plt
 import cv2
 import sys
@@ -22,8 +23,8 @@ def imshow(img):
 class Mag_test(Dataset):
     """Face Landmarks dataset."""
 
-    def __init__(self, root_dir, transform=None, amplification_factor=20):
-        self.img_name = glob.glob(os.path.join(root_dir, '*.jpg'))
+    def __init__(self, root_dir, transform=None, amplification_factor=10):
+        self.img_name = glob.glob(os.path.join(root_dir, '*.jpg')).sort()
         self.root_dir = root_dir
         self.transform = transform
         self.amplification_factor = amplification_factor
@@ -72,3 +73,4 @@ def main(root_dir, output_dir):
 
 if __name__ == '__main__':
     main(root_dir=sys.argv[1], output_dir=sys.argv[2])
+    img_2_mp4.convert_2_mp4(sys.argv[2], sys.argv[2]+'output.mp4')
