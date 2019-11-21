@@ -15,6 +15,16 @@ def imshow(img):
     plt.imshow(tmp)
     plt.show()
 
+def convert_mp4(mp4_path, img_dir):
+    vidcap = cv2.VideoCapture(mp4_path)
+    success, image = vidcap.read()
+    count = 0
+    while success:
+        str_c = str(count)
+        cv2.imwrite(img_dir+'frame'+(5-len(str_c))*'0'+str_c+'.jpg', image)  # save frame as JPEG file
+        success, image = vidcap.read()
+        count += 1
+
 class Mag_test(Dataset):
     """Face Landmarks dataset."""
 
@@ -33,8 +43,6 @@ class Mag_test(Dataset):
 
         img_a = Image.open(self.img_name[idx])
         img_b = Image.open(self.img_name[idx+1])
-#        img_a = img_a.resize((384, 384))
-#        img_b = img_b.resize((384, 384))
 
         sample = {'frameA': np.asarray(img_a), 'frameB': np.asarray(img_b),
                   'amplification_factor': self.amplification_factor}
@@ -44,23 +52,28 @@ class Mag_test(Dataset):
 
         return sample
 
-device = torch.device('cpu')
-root_dir='F:/heartrate/Video_Mag/data/'
-test_dataset = Mag_test(root_dir='F:/heartrate/Video_Mag/data/', transform=ToTensor())
-test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=4,
-                                          shuffle=True)
 
-PATH = './best_mode.pt'
-model = origin_Net()
-model.to(device)
-model = torch.load(PATH, map_location=lambda storage, loc: storage)
+def main():
+    device = torch.device('cpu')
+    root_dir = 'F:/heartrate/Video_Mag/data/shake/'
+    test_dataset = Mag_test(root_dir=root_dir, transform=ToTensor())
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1,
+                                              shuffle=True)
 
-with torch.no_grad():
-    for i, data in enumerate(test_loader):
-        img_a = data['frameA'].to(device, dtype=torch.float)
-        img_b = data['frameB'].to(device, dtype=torch.float)
-        amplification_factor = data['amplification_factor'].to(device, dtype=torch.float)
-        outputs = model(img_a, img_b, amplification_factor)
-        outputs = np.transpose(outputs[0].numpy(), (1, 2, 0))/2 + 0.5
-        outputs = np.clip(outputs, 0, 1)
-        plt.imsave(root_dir + 'output/' + str(i) + '.jpg', outputs)
+    PATH = './best_mode.pt'
+    model = origin_Net()
+    model.to(device)
+    model = torch.load(PATH, map_location=lambda storage, loc: storage)
+
+    with torch.no_grad():
+        for i, data in enumerate(test_loader):
+            img_a = data['frameA'].to(device, dtype=torch.float)
+            img_b = data['frameB'].to(device, dtype=torch.float)
+            amplification_factor = data['amplification_factor'].to(device, dtype=torch.float)
+            outputs = model(img_a, img_b, amplification_factor)
+            outputs = np.transpose(outputs[0].numpy(), (1, 2, 0))/255
+            outputs = np.clip(outputs, 0, 1)
+            plt.imsave(root_dir + 'output/' + str(i) + '.jpg', outputs)
+
+if __name__ == '__main__':
+    main()

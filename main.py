@@ -13,7 +13,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
     if model != 0:
         best_model_wts = copy.deepcopy(model.state_dict())
 
-    trace_loss = {'train':[],'val':[]}
+    trace_loss = {'train': [], 'val': []}
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
         print('-' * 10)
@@ -72,8 +72,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
             if phase == 'val' and epoch_loss > best_loss:
                 best_loss = epoch_loss
                 best_model_wts = copy.deepcopy(model.state_dict())
-
-        print()
+                torch.save(model, 'best_mode.pt')
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
@@ -99,10 +98,9 @@ dataloaders = {'train': trainloader, 'val': testloader}
 net = origin_Net()
 
 criterion = nn.L1Loss()
-optimizer = optim.Adam(net.parameters(), lr=0.00008)
+optimizer = optim.Adam(net.parameters(), lr=0.0002)
 device = torch.device("cuda:0")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
 net.to(device)
-best_model = train_model(model=net, criterion=criterion, optimizer=optimizer,
+train_model(model=net, criterion=criterion, optimizer=optimizer,
             scheduler=exp_lr_scheduler, device=device, dataloaders=dataloaders, dataset_sizes=dataset_sizes)
-torch.save(best_model, 'best_mode.pt')
