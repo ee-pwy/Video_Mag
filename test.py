@@ -73,4 +73,4 @@ def main(root_dir, output_dir):
 
 if __name__ == '__main__':
     main(root_dir=sys.argv[1], output_dir=sys.argv[2])
-    img_2_mp4.convert_2_mp4(sys.argv[2], sys.argv[2]+'output.mp4')
+    img_2_mp4.convert_2_mp4(sys.argv[2], sys.argv[2]+'../output.mp4')
