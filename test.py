@@ -55,8 +55,9 @@ def main(root_dir, output_dir):
         os.mkdir(output_dir)
     PATH = './best_mode.pt'
     model = origin_Net()
+    model = torch.load(PATH)
+#    model = torch.load(PATH, map_location=lambda storage, loc: storage)
     model.to(device)
-    model = torch.load(PATH, map_location=lambda storage, loc: storage)
 
     with torch.no_grad():
         for i, data in enumerate(test_loader):
