@@ -7,6 +7,7 @@ def convert_2_mp4(img_dir, mp4_path):
     frame_array = []
     files = [f for f in os.listdir(img_dir) if isfile(join(img_dir, f))]  # for sorting the file names properly
     files.sort(key=lambda x: int(x[:-4]))
+    print(files)
     for i in range(len(files)):
         filename = img_dir + files[i]
         # reading each files
@@ -24,5 +25,4 @@ def convert_2_mp4(img_dir, mp4_path):
     out.release()
 
 if __name__ == '__main__':
-    print(sys.argv[1])
     convert_2_mp4(sys.argv[1], sys.argv[2])
