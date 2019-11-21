@@ -23,6 +23,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
         for phase in ['train', 'val']:
             filehandle = open(phase+'_origin.txt', 'a+')
             running_loss = 0.0
+            running_diff = 0.0
             epoch_loss = 0
 
             # Iterate over data.
@@ -41,7 +42,8 @@ def train_model(model, criterion, optimizer, scheduler, device,
                 with torch.set_grad_enabled(phase == 'train'):
                     outputs = model(img_a, img_b, amplification_factor)
                     text_c, shape_c = model.encoder(img_c)
-                    loss = criterion(outputs, amplified) + criterion(model.text_a, text_c) \
+                    diff = criterion(outputs, amplified)
+                    loss = diff + criterion(model.text_a, text_c) \
                            + criterion(model.shape_a, shape_c)
 
                     # backward + optimize only if in training phase
@@ -51,12 +53,15 @@ def train_model(model, criterion, optimizer, scheduler, device,
 
                 # statistics
                 running_loss += loss.item()
+                running_diff += diff.item()
                 if i % 10 == 9:
-                    print('images num:{} running: {:.4f}'.format((i+1)*4, running_loss / 10.0))
+                    print('images num:{} loss: {:.4f} diff: {:.4f}'.format((i+1)*4,
+                                running_loss / 10.0), running_diff / 10.0)
                     epoch_loss += running_loss / dataset_sizes[phase]
                     trace_loss[phase].append(float(running_loss) / 10.0)
                     filehandle.write('{:.5f}\n'.format(float(running_loss) / 10.0))
                     running_loss = 0
+                    running_diff = 0
             if phase == 'train':
                 scheduler.step()
 
@@ -94,7 +99,7 @@ dataloaders = {'train': trainloader, 'val': testloader}
 net = origin_Net()
 
 criterion = nn.L1Loss()
-optimizer = optim.Adam(net.parameters(), lr=0.00005)
+optimizer = optim.Adam(net.parameters(), lr=0.00008)
 device = torch.device("cuda:0")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
 net.to(device)
