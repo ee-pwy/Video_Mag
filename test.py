@@ -24,7 +24,8 @@ class Mag_test(Dataset):
     """Face Landmarks dataset."""
 
     def __init__(self, root_dir, transform=None, amplification_factor=10):
-        self.img_name = glob.glob(os.path.join(root_dir, '*.jpg')).sort()
+        self.img_name = glob.glob(os.path.join(root_dir, '*.jpg'))
+        self.img_name.sort()
         self.root_dir = root_dir
         self.transform = transform
         self.amplification_factor = amplification_factor
@@ -55,7 +56,6 @@ def main(root_dir, output_dir):
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     PATH = './best_mode.pt'
-    model = origin_Net()
     model = torch.load(PATH)
 #    model = torch.load(PATH, map_location=lambda storage, loc: storage)
     model.to(device)
