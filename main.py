@@ -72,7 +72,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
             if phase == 'val' and epoch_loss > best_loss:
                 best_loss = epoch_loss
                 best_model_wts = copy.deepcopy(model.state_dict())
-                torch.save(model, 'best_mode.pt')
+                torch.save(model, 'best_mode_Net.pt')
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
@@ -82,7 +82,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
     model.load_state_dict(best_model_wts)
     return model
 
-tra_val_dataset = MagDataset(root_dir='C:/Wenyu/data', transform=ToTensor())
+tra_val_dataset = MagDataset(root_dir='/home/wenyu/mag_data/train', transform=ToTensor())
 
 dataset_sizes = {'train': int(0.8*len(tra_val_dataset)), 'val': int(0.2*len(tra_val_dataset))}
 trainsubset, testsubset = torch.utils.data.random_split(tra_val_dataset,

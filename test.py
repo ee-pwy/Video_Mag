@@ -4,6 +4,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import cv2
 
+
 def imshow(img):
     img = img / 2 + 0.5     # unnormalize
     npimg = img.numpy()
@@ -15,15 +16,6 @@ def imshow(img):
     plt.imshow(tmp)
     plt.show()
 
-def convert_mp4(mp4_path, img_dir):
-    vidcap = cv2.VideoCapture(mp4_path)
-    success, image = vidcap.read()
-    count = 0
-    while success:
-        str_c = str(count)
-        cv2.imwrite(img_dir+'frame'+(5-len(str_c))*'0'+str_c+'.jpg', image)  # save frame as JPEG file
-        success, image = vidcap.read()
-        count += 1
 
 class Mag_test(Dataset):
     """Face Landmarks dataset."""
@@ -74,6 +66,7 @@ def main():
             outputs = np.transpose(outputs[0].numpy(), (1, 2, 0))/255
             outputs = np.clip(outputs, 0, 1)
             plt.imsave(root_dir + 'output/' + str(i) + '.jpg', outputs)
+
 
 if __name__ == '__main__':
     main()
