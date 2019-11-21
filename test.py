@@ -65,7 +65,7 @@ def main(root_dir, output_dir):
             img_b = data['frameB'].to(device, dtype=torch.float)
             amplification_factor = data['amplification_factor'].to(device, dtype=torch.float)
             outputs = model(img_a, img_b, amplification_factor)
-            outputs = np.transpose(outputs[0].item(), (1, 2, 0))/255
+            outputs = np.transpose(outputs[0].cpu().numpy(), (1, 2, 0))/255
             outputs = np.clip(outputs, 0, 1)
             plt.imsave(output_dir + '0'*(5-len(str(i))) + str(i) + '.jpg', outputs)
 
