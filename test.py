@@ -3,6 +3,8 @@ from data_load import *
 from PIL import Image
 import matplotlib.pyplot as plt
 import cv2
+import sys
+import os
 
 
 def imshow(img):
@@ -45,13 +47,12 @@ class Mag_test(Dataset):
         return sample
 
 
-def main():
-    device = torch.device('cpu')
-    root_dir = 'F:/heartrate/Video_Mag/data/shake/'
+def main(root_dir, output_dir):
+    device = torch.device('cuda:0')
     test_dataset = Mag_test(root_dir=root_dir, transform=ToTensor())
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1,
-                                              shuffle=True)
-
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1)
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
     PATH = './best_mode.pt'
     model = origin_Net()
     model.to(device)
@@ -65,8 +66,8 @@ def main():
             outputs = model(img_a, img_b, amplification_factor)
             outputs = np.transpose(outputs[0].numpy(), (1, 2, 0))/255
             outputs = np.clip(outputs, 0, 1)
-            plt.imsave(root_dir + 'output/' + str(i) + '.jpg', outputs)
+            plt.imsave(output_dir + '0'*(5-len(str(i))) + str(i) + '.jpg', outputs)
 
 
 if __name__ == '__main__':
-    main()
+    main(root_dir=sys.argv[1], output_dir=sys.argv[2])
