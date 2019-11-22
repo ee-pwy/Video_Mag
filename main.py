@@ -56,7 +56,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
                 running_diff += diff.item()
                 if i % 10 == 9:
                     print('images num:{} loss: {:.4f} diff: {:.4f}'.format((i+1)*4,
-                                running_loss / 10.0), running_diff / 10.0)
+                                running_loss / 10.0, running_diff / 10.0))
                     epoch_loss += running_loss / dataset_sizes[phase]
                     trace_loss[phase].append(float(running_loss) / 10.0)
                     filehandle.write('{:.5f}\n'.format(float(running_loss) / 10.0))
