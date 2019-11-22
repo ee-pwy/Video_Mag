@@ -21,7 +21,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
         # Each epoch has a training and validation phase
 
         for phase in ['train', 'val']:
-            filehandle = open(phase+'_origin.txt', 'a+')
+            filehandle = open(phase+'_.txt', 'a+')
             running_loss = 0.0
             running_diff = 0.0
             epoch_loss = 0
@@ -95,12 +95,12 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=4,
                                          shuffle=True)
 dataloaders = {'train': trainloader, 'val': testloader}
 
-net = origin_Net()
+net = Net()
 
 criterion = nn.L1Loss()
 optimizer = optim.Adam(net.parameters(), lr=0.0002)
 device = torch.device("cuda:0")
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.7)
 net.to(device)
 train_model(model=net, criterion=criterion, optimizer=optimizer,
             scheduler=exp_lr_scheduler, device=device, dataloaders=dataloaders, dataset_sizes=dataset_sizes)
