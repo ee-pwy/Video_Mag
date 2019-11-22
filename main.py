@@ -21,7 +21,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
         # Each epoch has a training and validation phase
 
         for phase in ['train', 'val']:
-            filehandle = open(phase+'_.txt', 'a+')
+            filehandle = open(phase+'_origin.txt', 'a+')
             running_loss = 0.0
             running_diff = 0.0
             epoch_loss = 0
@@ -72,7 +72,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
             if phase == 'val' and epoch_loss > best_loss:
                 best_loss = epoch_loss
                 best_model_wts = copy.deepcopy(model.state_dict())
-                torch.save(model, 'best_mode_Net.pt')
+                torch.save(model, 'best_mode_origin_Net.pt')
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
@@ -95,11 +95,11 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=4,
                                          shuffle=True)
 dataloaders = {'train': trainloader, 'val': testloader}
 
-net = Net()
+net = origin_Net()
 
 criterion = nn.L1Loss()
 optimizer = optim.Adam(net.parameters(), lr=0.0002)
-device = torch.device("cuda:0")
+device = torch.device("cuda:1")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.7)
 net.to(device)
 train_model(model=net, criterion=criterion, optimizer=optimizer,
