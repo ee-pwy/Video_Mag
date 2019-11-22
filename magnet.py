@@ -97,10 +97,10 @@ class Net(nn.Module):
         return x
 
     def forward(self, image_a, image_b, amplification_factor):
-        text_a, shape_a = self.encoder(image_a)
-        text_b, shape_b = self.encoder(image_b)
-        encode_shape = self.manipulator(shape_a, shape_b, amplification_factor)
-        output = self.decoder(text_b, encode_shape)
+        self.text_a, self.shape_a = self.encoder(image_a)
+        self.text_b, self.shape_b = self.encoder(image_b)
+        encode_shape = self.manipulator(self.shape_a, self.shape_b, amplification_factor)
+        output = self.decoder(self.text_b, encode_shape)
         return output
 
 
