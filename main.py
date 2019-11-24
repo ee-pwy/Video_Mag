@@ -43,8 +43,8 @@ def train_model(model, criterion, optimizer, scheduler, device,
                     outputs = model(img_a, img_b, amplification_factor)
                     text_c, shape_c = model.encoder(img_c)
                     diff = criterion(outputs, amplified)
-                    loss = diff + criterion(model.text_a, text_c) \
-                           + criterion(model.shape_a, shape_c)
+                    loss = diff + 3 * criterion(model.text_a, text_c) \
+                           + 3 * criterion(model.shape_a, shape_c)
 
                     # backward + optimize only if in training phase
                     if phase == 'train':
@@ -81,6 +81,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
     # load best model weights
     model.load_state_dict(best_model_wts)
     return model
+
 
 tra_val_dataset = MagDataset(root_dir='/home/wenyu/mag_data/train', transform=ToTensor())
 

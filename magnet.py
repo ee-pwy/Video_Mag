@@ -25,9 +25,9 @@ class Net(nn.Module):
         self.conv_input_1 = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=7, stride=1)
         self.conv_input_2 = nn.Conv2d(in_channels=16, out_channels=8, kernel_size=3, stride=2)
         self.conv_text_1 = nn.Conv2d(in_channels=8, out_channels=4, kernel_size=3, stride=2)
-        self.conv_text_2 = nn.Conv2d(in_channels=4, out_channels=2, kernel_size=3, stride=2)
+        self.conv_text_2 = nn.Conv2d(in_channels=4, out_channels=2, kernel_size=3, stride=1)
         self.conv_shape_1 = nn.Conv2d(in_channels=8, out_channels=4, kernel_size=3, stride=2)
-        self.conv_shape_2 = nn.Conv2d(in_channels=4, out_channels=2, kernel_size=3, stride=2)
+        self.conv_shape_2 = nn.Conv2d(in_channels=4, out_channels=2, kernel_size=3, stride=1)
         self.res_blk_encoder = nn.ModuleList([Residual(in_channels=8) for i in range(3)])
         self.res_blk_text = nn.ModuleList([Residual(in_channels=2) for i in range(2)])
         self.res_blk_shape = nn.ModuleList([Residual(in_channels=2) for i in range(2)])
@@ -54,15 +54,11 @@ class Net(nn.Module):
 
         text = self.pad_1(x)
         text = F.relu(self.conv_text_1(text))
-        text = self.pad_1(text)
-        text = F.relu(self.conv_text_2(text))
         for block in self.res_blk_text:
             text = block(text)
 
         shape = self.pad_1(x)
         shape = F.relu(self.conv_shape_1(shape))
-        shape = self.pad_1(shape)
-        shape = F.relu(self.conv_shape_2(shape))
         for block in self.res_blk_shape:
             shape = block(shape)
 
@@ -89,7 +85,7 @@ class Net(nn.Module):
         for block in self.res_blk_decoder:
             x = block(x)
 
-        x = F.interpolate(x, scale_factor=4)
+        x = F.interpolate(x, scale_factor=2)
         x = self.pad_1(x)
         x = F.relu(self.conv_output_1(x))
         x = self.pad_3(x)
