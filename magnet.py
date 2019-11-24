@@ -54,11 +54,15 @@ class Net(nn.Module):
 
         text = self.pad_1(x)
         text = F.relu(self.conv_text_1(text))
+        text = self.pad_1(text)
+        text = F.relu(self.conv_text_2(text))
         for block in self.res_blk_text:
             text = block(text)
 
         shape = self.pad_1(x)
         shape = F.relu(self.conv_shape_1(shape))
+        shape = self.pad_1(shape)
+        shape = F.relu(self.conv_text_2(shape))
         for block in self.res_blk_shape:
             shape = block(shape)
 
