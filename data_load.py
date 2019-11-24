@@ -76,6 +76,8 @@ class MagDataset(Dataset):
             amplification_factor = json.load(open(meta_path))['amplification_factor']
             if all(i is not None for i in [img_a, img_b, img_c, amplified, amplification_factor]):
                 break
+            else:
+                print(frame_name, [i is None for i in [img_a, img_b, img_c, amplified, amplification_factor]])
 
         sample = {'frameA': img_a, 'frameB': img_b, 'frameC': img_c, 'amplified': amplified,
                   'amplification_factor': amplification_factor}
