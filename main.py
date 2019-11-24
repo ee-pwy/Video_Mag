@@ -85,7 +85,8 @@ def train_model(model, criterion, optimizer, scheduler, device,
 
 tra_val_dataset = MagDataset(root_dir='/home/wenyu/mag_data/train', transform=ToTensor())
 
-dataset_sizes = {'train': int(0.8*len(tra_val_dataset)), 'val': int(0.2*len(tra_val_dataset))}
+num_train = int(0.8*len(tra_val_dataset))
+dataset_sizes = {'train': num_train, 'val': len(tra_val_dataset)-num_train}
 trainsubset, testsubset = torch.utils.data.random_split(tra_val_dataset,
                                         [dataset_sizes['train'], dataset_sizes['val']])
 trainset = MagSubset(trainsubset)

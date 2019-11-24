@@ -77,7 +77,7 @@ class MagDataset(Dataset):
             if all(i is not None for i in [img_a, img_b, img_c, amplified, amplification_factor]):
                 break
             else:
-                print(frame_name, [i is None for i in [img_a, img_b, img_c, amplified, amplification_factor]])
+                idx += 1
 
         sample = {'frameA': img_a, 'frameB': img_b, 'frameC': img_c, 'amplified': amplified,
                   'amplification_factor': amplification_factor}
