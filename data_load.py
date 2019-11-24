@@ -65,14 +65,17 @@ class MagDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        frame_name = os.path.basename(self.img_name[idx])
-        img_a = cv2.imread(os.path.join(self.root_dir, 'frameA', frame_name))
-        img_b = cv2.imread(os.path.join(self.root_dir, 'frameB', frame_name))
-        img_c = cv2.imread(os.path.join(self.root_dir, 'frameC', frame_name))
-        amplified = cv2.imread(os.path.join(self.root_dir, 'amplified', frame_name))
-        f, _ = os.path.splitext(frame_name)
-        meta_path = os.path.join(self.root_dir, 'meta', f + '.json')
-        amplification_factor = json.load(open(meta_path))['amplification_factor']
+        while True:
+            frame_name = os.path.basename(self.img_name[idx])
+            img_a = cv2.imread(os.path.join(self.root_dir, 'frameA', frame_name))
+            img_b = cv2.imread(os.path.join(self.root_dir, 'frameB', frame_name))
+            img_c = cv2.imread(os.path.join(self.root_dir, 'frameC', frame_name))
+            amplified = cv2.imread(os.path.join(self.root_dir, 'amplified', frame_name))
+            f, _ = os.path.splitext(frame_name)
+            meta_path = os.path.join(self.root_dir, 'meta', f + '.json')
+            amplification_factor = json.load(open(meta_path))['amplification_factor']
+            if all(i is not None for i in [img_a, img_b, img_c, amplified, amplification_factor]):
+                break
 
         sample = {'frameA': img_a, 'frameB': img_b, 'frameC': img_c, 'amplified': amplified,
                   'amplification_factor': amplification_factor}
