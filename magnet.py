@@ -76,7 +76,7 @@ class Net(nn.Module):
         shape = self.pad_1(x)
         shape = F.relu(self.bn_shape_1(self.conv_shape_1(shape)))
         shape = self.pad_1(shape)
-        shape = F.relu(self.bn_shape_1(self.conv_shape_2(shape)))
+        shape = F.relu(self.bn_shape_2(self.conv_shape_2(shape)))
         for block in self.res_blk_shape:
             shape = block(shape)
 
