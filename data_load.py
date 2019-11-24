@@ -2,7 +2,7 @@ import os
 from skimage import io
 import glob
 from torch.utils.data import Dataset
-import numpy as np
+import cv2
 import torch
 import json
 
@@ -66,10 +66,10 @@ class MagDataset(Dataset):
             idx = idx.tolist()
 
         frame_name = os.path.basename(self.img_name[idx])
-        img_a = io.imread(os.path.join(self.root_dir, 'frameA', frame_name))
-        img_b = io.imread(os.path.join(self.root_dir, 'frameB', frame_name))
-        img_c = io.imread(os.path.join(self.root_dir, 'frameC', frame_name))
-        amplified = io.imread(os.path.join(self.root_dir, 'amplified', frame_name))
+        img_a = cv2.imread(os.path.join(self.root_dir, 'frameA', frame_name))
+        img_b = cv2.imread(os.path.join(self.root_dir, 'frameB', frame_name))
+        img_c = cv2.imread(os.path.join(self.root_dir, 'frameC', frame_name))
+        amplified = cv2.imread(os.path.join(self.root_dir, 'amplified', frame_name))
         f, _ = os.path.splitext(frame_name)
         meta_path = os.path.join(self.root_dir, 'meta', f + '.json')
         amplification_factor = json.load(open(meta_path))['amplification_factor']
