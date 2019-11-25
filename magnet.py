@@ -13,7 +13,7 @@ class Residual(nn.Module):
         self.bn2 = nn.BatchNorm2d(in_channels)
 
     def forward(self, x):
-        return x + self.bn2(self.conv2(self.pad(F.relu(self.bn1(self.conv1(self.pad(x)))))))
+        return self.relu(x + self.bn2(self.conv2(self.pad(F.relu(self.bn1(self.conv1(self.pad(x))))))))
 
 
 class Net(nn.Module):
@@ -107,7 +107,7 @@ class Net(nn.Module):
         x = self.pad_1(x)
         x = F.relu(self.bn_output_1(self.conv_output_1(x)))
         x = self.pad_3(x)
-        x = F.relu(self.bn_output_2(self.conv_output_2(x)))
+        x = F.relu(self.conv_output_2(x))
         return x
 
     def forward(self, image_a, image_b, amplification_factor):
