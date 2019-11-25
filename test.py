@@ -4,6 +4,7 @@ from PIL import Image
 import img_2_mp4
 import matplotlib.pyplot as plt
 import cv2
+import numpy as np
 import sys
 import os
 
