@@ -27,10 +27,6 @@ class ToTensor(object):
         if len(sample) == 5:
             img_a, img_b, img_c, amplified, amplification_factor = sample['frameA'],\
                         sample['frameB'],  sample['frameC'], sample['amplified'], sample['amplification_factor']
-            img_a = img_a
-            img_b = img_b
-            img_c = img_c
-            amplified = amplified
             img_a = torch.from_numpy(img_a.transpose((2 ,0, 1)))
             img_b = torch.from_numpy(img_b.transpose((2, 0, 1)))
             img_c = torch.from_numpy(img_c.transpose((2, 0, 1)))
@@ -44,8 +40,6 @@ class ToTensor(object):
                         sample['frameB'], sample['amplification_factor']
             img_a = torch.from_numpy(img_a.transpose((2, 0, 1)))
             img_b = torch.from_numpy(img_b.transpose((2, 0, 1)))
-            img_a = img_a
-            img_b = img_b
             amplification_factor = torch.tensor(amplification_factor)
             return {'frameA': img_a, 'frameB': img_b, 'amplification_factor': amplification_factor}
 

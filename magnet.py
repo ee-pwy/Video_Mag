@@ -200,7 +200,7 @@ class origin_Net(nn.Module):
         x = F.relu(self.conv_output_2(x))
         return x
 
-    def forward(self, image_a, image_b, amplification_factor):
+    def forward(self, image_a, image_b, amplification_factor=10):
         self.text_a, self.shape_a = self.encoder(image_a)
         self.text_b, self.shape_b = self.encoder(image_b)
         encode_shape = self.manipulator(self.shape_a, self.shape_b, amplification_factor)

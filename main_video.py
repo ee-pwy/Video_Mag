@@ -1,5 +1,5 @@
-from radar import *
-from data_load_fusion import *
+from magnet import *
+from data_load import *
 from torch.optim import lr_scheduler
 import torch.optim as optim
 import time
@@ -27,9 +27,7 @@ def train_model(model, criterion, optimizer, scheduler, device,
             epoch_loss = 0
 
             # Iterate over data.
-            num_stft = len(dataloaders[phase][0][0].to(device, dtype=torch.float))
             for i, inputs in enumerate(dataloaders[phase]):
-                for
                 img_a = inputs['frameA'].to(device, dtype=torch.float)
                 img_b = inputs['frameB'].to(device, dtype=torch.float)
                 img_c = inputs['frameC'].to(device, dtype=torch.float)
@@ -85,23 +83,23 @@ def train_model(model, criterion, optimizer, scheduler, device,
     return model
 
 
-tra_val_dataset = FusionDataset(root_dir='/home/wenyu/mag_data/train', transform=ToTensor())
+tra_val_dataset = MagDataset(root_dir='/home/wenyu/mag_data/train', transform=ToTensor())
 
 num_train = int(0.8*len(tra_val_dataset))
 dataset_sizes = {'train': num_train, 'val': len(tra_val_dataset)-num_train}
 trainsubset, testsubset = torch.utils.data.random_split(tra_val_dataset,
                                         [dataset_sizes['train'], dataset_sizes['val']])
-trainset = FusionSubset(trainsubset)
-testset = FusionSubset(testsubset)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=2,
+trainset = MagSubset(trainsubset)
+testset = MagSubset(testsubset)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
                                           shuffle=True)
-testloader = torch.utils.data.DataLoader(testset, batch_size=2,
+testloader = torch.utils.data.DataLoader(testset, batch_size=4,
                                          shuffle=True)
 dataloaders = {'train': trainloader, 'val': testloader}
 
-net = fusion()
+net = Net()
 
-criterion = nn.L2Loss()
+criterion = nn.L1Loss()
 optimizer = optim.Adam(net.parameters(), lr=0.0002)
 device = torch.device("cuda:0")
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.6)
